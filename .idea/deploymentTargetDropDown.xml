@@ -21,6 +21,9 @@
       <entry key="ToolBarPreview">
         <State />
       </entry>
+      <entry key="app">
+        <State />
+      </entry>
     </value>
   </component>
 </project>

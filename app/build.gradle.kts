@@ -48,6 +48,8 @@ android {
 
 dependencies {
 
+    implementation(libs.volley)
+    implementation ("com.google.code.gson:gson:2.8.8")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

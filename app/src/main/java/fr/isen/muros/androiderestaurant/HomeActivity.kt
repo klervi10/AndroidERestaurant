@@ -5,11 +5,13 @@ import android.util.Log
 import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+/*
 import android.widget.Toast
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.*
+*/
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,7 +24,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
@@ -65,9 +66,9 @@ fun HomePage(){
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ToolBar()
-        Spacer(modifier = Modifier.height(100.dp)) // Ajouter un espacement entre la barre d'outils et les boutons
+        Spacer(modifier = Modifier.height(100.dp))
         Accueil()
-        Spacer(modifier = Modifier.height(100.dp)) // Ajouter un espacement entre la barre d'outils et les boutons
+        Spacer(modifier = Modifier.height(100.dp))
         ButtonToast()
     }
 }
@@ -86,7 +87,7 @@ fun ToolBar(modifier: Modifier= Modifier) {
             modifier = Modifier
                 .background(Color(0xFFFFA500))
                 .fillMaxWidth()
-                .padding(vertical = 16.dp, horizontal = 16.dp) // Ajoute un espace vertical entre le texte et le haut de l'écran
+                .padding(vertical = 16.dp, horizontal = 16.dp)
 
         )
     }
@@ -156,6 +157,7 @@ fun ButtonToast(modifier: Modifier = Modifier) {
                 selectedCategory = "Entrées"
                 val intent = Intent(context, CategoryActivity::class.java)
                 intent.putExtra("selected_category", selectedCategory)
+                intent.putExtra("background_color", "#FFFFFF")
                 context.startActivity(intent)
                 /* Faire un toast (idem pour chaque bouton)
                 Toast.makeText(
@@ -176,6 +178,7 @@ fun ButtonToast(modifier: Modifier = Modifier) {
                 selectedCategory = "Plats"
                 val intent = Intent(context, CategoryActivity::class.java)
                 intent.putExtra("selected_category", selectedCategory)
+                intent.putExtra("background_color", "#FFFFFF")
                 context.startActivity(intent)
             }
         )
@@ -189,6 +192,7 @@ fun ButtonToast(modifier: Modifier = Modifier) {
                 selectedCategory = "Desserts"
                 val intent = Intent(context, CategoryActivity::class.java)
                 intent.putExtra("selected_category", selectedCategory)
+                intent.putExtra("background_color", "#FFFFFF")
                 context.startActivity(intent)
             }
         )
