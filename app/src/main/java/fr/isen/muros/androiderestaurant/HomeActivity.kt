@@ -1,6 +1,7 @@
 package fr.isen.muros.androiderestaurant
 
 import android.os.Bundle
+import android.util.Log
 import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -21,6 +22,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
@@ -48,6 +50,10 @@ class HomeActivity : ComponentActivity() {
                 HomePage()
             }
         }
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("HomeActivity", "HomeActivity destroyed")
     }
 }
 
@@ -80,47 +86,53 @@ fun ToolBar(modifier: Modifier= Modifier) {
             modifier = Modifier
                 .background(Color(0xFFFFA500))
                 .fillMaxWidth()
-                .padding(vertical = 16.dp) // Ajoute un espace vertical entre le texte et le haut de l'écran
+                .padding(vertical = 16.dp, horizontal = 16.dp) // Ajoute un espace vertical entre le texte et le haut de l'écran
 
         )
     }
 }
 
 @Composable
-fun Accueil(modifier: Modifier= Modifier){
+fun Accueil(modifier: Modifier = Modifier) {
     Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.End,) {
-        Column()
-        {
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.Top
+    ) {
+        Column(
+            modifier = Modifier.align(Alignment.Top)
+        ) {
             Text(
                 text = "Bienvenue",
                 color = Color(0xFFFFA500),
                 textAlign = TextAlign.End,
-                style = TextStyle(fontSize = 30.sp)
+                style = TextStyle(fontSize = 30.sp),
+                modifier = Modifier.padding(start = 80.dp)
+
             )
             Text(
                 text = "chez",
                 color = Color(0xFFFFA500),
                 textAlign = TextAlign.End,
-                style = TextStyle(fontSize = 30.sp)
+                style = TextStyle(fontSize = 30.sp),
+                modifier = Modifier.padding(start = 165.dp)
             )
             Text(
                 text = "DroidRestaurant",
-                color = Color(0x5C000000),
-                textAlign = TextAlign.Start,
+                color = Color(0xCD310010),
+                textAlign = TextAlign.End,
                 style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 30.sp, fontFamily = FontFamily(Font(R.font.ojuju)))
             )
         }
         Image(
             painter = painterResource(id = R.drawable.androidchef),
             contentDescription = "Android Chef",
-            modifier = Modifier
-                .size(150.dp), // Ajuster la taille
+            modifier = Modifier.size(150.dp), // Ajuster la taille
             alignment = Alignment.TopEnd
         )
     }
 }
+
 
 
 @Composable
@@ -145,11 +157,13 @@ fun ButtonToast(modifier: Modifier = Modifier) {
                 val intent = Intent(context, CategoryActivity::class.java)
                 intent.putExtra("selected_category", selectedCategory)
                 context.startActivity(intent)
+                /* Faire un toast (idem pour chaque bouton)
                 Toast.makeText(
                     context,
                     "Vous avez cliqué sur les Entrées",
                     Toast.LENGTH_SHORT
                 ).show()
+                 */
             }
         )
         Divider(color = Color.Black, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
@@ -163,11 +177,6 @@ fun ButtonToast(modifier: Modifier = Modifier) {
                 val intent = Intent(context, CategoryActivity::class.java)
                 intent.putExtra("selected_category", selectedCategory)
                 context.startActivity(intent)
-                Toast.makeText(
-                    context,
-                    "Vous avez cliqué sur les Plats",
-                    Toast.LENGTH_SHORT
-                ).show()
             }
         )
         Divider(color = Color.Black, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
@@ -181,11 +190,6 @@ fun ButtonToast(modifier: Modifier = Modifier) {
                 val intent = Intent(context, CategoryActivity::class.java)
                 intent.putExtra("selected_category", selectedCategory)
                 context.startActivity(intent)
-                Toast.makeText(
-                    context,
-                    "Vous avez cliqué sur les Desserts",
-                    Toast.LENGTH_SHORT
-                ).show()
             }
         )
     }
