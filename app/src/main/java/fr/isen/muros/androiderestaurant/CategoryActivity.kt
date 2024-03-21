@@ -27,6 +27,7 @@ import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import org.json.JSONObject
+import com.google.gson.Gson
 import android.widget.Toast
 import fr.isen.muros.androiderestaurant.ui.theme.AndroidERestaurantTheme
 
@@ -48,8 +49,6 @@ class CategoryActivity : ComponentActivity() {
                 }
             }
         }
-
-        // Appeler la fonction pour récupérer les données
         fetchData()
     }
 
@@ -65,6 +64,8 @@ class CategoryActivity : ComponentActivity() {
         val jsonObjectRequest = JsonObjectRequest(
             Request.Method.POST, url, params,
             { response ->
+                /*val result: DataResult = Gson().fromJson(response, DataResult::class.java)
+                val dishesFromCategory = result.data.find{it.nameFr == selectedCategory}?.items*/
                 Log.d("VolleyResponse", "Response: $response")
                 Toast.makeText(applicationContext, "Response: $response", Toast.LENGTH_SHORT).show()
             },
@@ -74,6 +75,7 @@ class CategoryActivity : ComponentActivity() {
         )
 
         queue.add(jsonObjectRequest)
+        //volley.newRequestQueue(this).add(jsonObjectRequest) c'est quoi???
     }
 }
 
@@ -120,3 +122,5 @@ fun CategoryTitlePreview() {
         CategoryTitle("tessst")
     }
 }
+
+
