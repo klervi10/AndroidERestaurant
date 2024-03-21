@@ -29,30 +29,40 @@ import com.android.volley.toolbox.Volley
 import org.json.JSONObject
 import com.google.gson.Gson
 import android.widget.Toast
+
+import fr.isen.muros.androiderestaurant.model.Data
+import fr.isen.muros.androiderestaurant.model.Items
+import fr.isen.muros.androiderestaurant.model.DataResult
 import fr.isen.muros.androiderestaurant.ui.theme.AndroidERestaurantTheme
 
 
 class CategoryActivity : ComponentActivity() {
+    private var backgroundColor: String = "#FFFFFF"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // Récupérer la catégorie sélectionnée depuis l'Intent
         val selectedCategory = intent.getStringExtra("selected_category")
-        val backgroundColor = intent.getStringExtra("background_color") ?: "#FFFFFF"
+        backgroundColor = intent.getStringExtra("background_color") ?: "#FFFFFF"
+
+        // Appel à la fonction fetchData avant l'initialisation de l'interface utilisateur
+        fetchData(selectedCategory)
+
         setContent {
             AndroidERestaurantTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = Color(android.graphics.Color.parseColor(backgroundColor))
                 ) {
-                    CategoryTitle(selectedCategory ?: "Catégorie inconnue")
+                    // Passer une liste vide en attendant la récupération des données
+                    CategoryTitle(selectedCategory ?: "Catégorie inconnue", emptyList())
                 }
             }
         }
-        fetchData()
     }
 
-    private fun fetchData() {
+    private fun fetchData(selectedCategory: String?) {
         val queue = Volley.newRequestQueue(this)
         val url = "http://test.api.catering.bluecodegames.com/menu"
 
@@ -64,10 +74,15 @@ class CategoryActivity : ComponentActivity() {
         val jsonObjectRequest = JsonObjectRequest(
             Request.Method.POST, url, params,
             { response ->
-                /*val result: DataResult = Gson().fromJson(response, DataResult::class.java)
-                val dishesFromCategory = result.data.find{it.nameFr == selectedCategory}?.items*/
-                Log.d("VolleyResponse", "Response: $response")
-                Toast.makeText(applicationContext, "Response: $response", Toast.LENGTH_SHORT).show()
+                val result: DataResult = Gson().fromJson(response.toString(), DataResult::class.java)
+                Log.d("JSON_DATA", "Data result: $result")
+
+                // Filtrer les plats par catégorie
+                val dishesFromCategory = result.data.flatMap { it.items }.filter { it.categNameFr == selectedCategory }
+                Log.d("DISHES_FILTER", "Dishes from category: $dishesFromCategory")
+
+                // Mettre à jour l'interface utilisateur avec les données récupérées
+                updateUI(selectedCategory ?: "Catégorie inconnue", dishesFromCategory)
             },
             { error ->
                 Toast.makeText(applicationContext, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
@@ -75,20 +90,25 @@ class CategoryActivity : ComponentActivity() {
         )
 
         queue.add(jsonObjectRequest)
-        //volley.newRequestQueue(this).add(jsonObjectRequest) c'est quoi???
+    }
+
+    private fun updateUI(selectedCategory: String, dishes: List<Items>) {
+        setContent {
+            AndroidERestaurantTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = Color(android.graphics.Color.parseColor(backgroundColor))
+                ) {
+                    CategoryTitle(selectedCategory, dishes)
+                }
+            }
+        }
     }
 }
 
 @Composable
-fun CategoryTitle(selectedCategory: String, modifier: Modifier = Modifier) {
-
+fun CategoryTitle(selectedCategory: String, dishes: List<Items>, modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val categoryItems = when(selectedCategory) {
-        "Entrées" -> context.resources.getStringArray(R.array.entrees).toList()
-        "Plats" -> context.resources.getStringArray(R.array.plats).toList()
-        "Desserts" -> context.resources.getStringArray(R.array.desserts).toList()
-        else -> emptyList()
-    }
 
     Column(
         modifier = modifier.padding(16.dp),
@@ -100,13 +120,13 @@ fun CategoryTitle(selectedCategory: String, modifier: Modifier = Modifier) {
             style = TextStyle(fontSize = 24.sp)
         )
         // Afficher la liste des éléments de la catégorie
-        categoryItems.forEach { item: String ->
+        dishes.forEach { item: Items ->
             Text(
-                text = item,
+                text = item.nameFr ?: "",
                 style = TextStyle(fontSize = 18.sp),
                 modifier = Modifier.clickable {
                     val intent = Intent(context, DetailActivity::class.java)
-                    intent.putExtra("selected_dish", item)
+                    intent.putExtra("selected_dish", item.nameFr)
                     intent.putExtra("background_color", "#FFFFFF")
                     context.startActivity(intent)
                 }
@@ -119,8 +139,6 @@ fun CategoryTitle(selectedCategory: String, modifier: Modifier = Modifier) {
 @Composable
 fun CategoryTitlePreview() {
     AndroidERestaurantTheme {
-        CategoryTitle("tessst")
+        CategoryTitle("test", emptyList())
     }
 }
-
-
