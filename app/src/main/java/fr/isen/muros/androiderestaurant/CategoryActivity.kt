@@ -117,7 +117,7 @@ fun CategoryTitle(selectedCategory: String, dishes: List<Items>, modifier: Modif
 
         items(dishes.size) { index ->
             val item = dishes[index]
-
+            val selectedPrice = item.prices.firstOrNull()?.price
             val imageName = item.nameFr?.let { it.replace("\\s".toRegex(), "_").lowercase() } ?: "default_image"
             val imageUrl = item.images.lastOrNull()
             val painter = if (imageUrl != null && imageUrl.isNotEmpty()) {
@@ -133,7 +133,7 @@ fun CategoryTitle(selectedCategory: String, dishes: List<Items>, modifier: Modif
                     intent.putExtra("selected_dish", item.nameFr)
                     intent.putExtra("background_color", "#FFFFFF")
                     intent.putExtra("images", item.images.toTypedArray())
-                    intent.putExtra("price", item.prices.firstOrNull()?.price ?: "0.00")
+                    intent.putExtra("selected_price", selectedPrice)
                     context.startActivity(intent)
                 }
             ) {
