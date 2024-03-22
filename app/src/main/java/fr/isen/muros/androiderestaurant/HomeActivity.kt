@@ -108,7 +108,7 @@ fun Accueil(modifier: Modifier = Modifier) {
                 color = Color(0xFFFFA500),
                 textAlign = TextAlign.End,
                 style = TextStyle(fontSize = 30.sp),
-                modifier = Modifier.padding(start = 80.dp)
+                modifier = Modifier.padding(start = 90.dp)
 
             )
             Text(
@@ -122,6 +122,7 @@ fun Accueil(modifier: Modifier = Modifier) {
                 text = "DroidRestaurant",
                 color = Color(0xCD310010),
                 textAlign = TextAlign.End,
+                modifier = Modifier.padding(start = 10.dp),
                 style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 30.sp, fontFamily = FontFamily(Font(R.font.ojuju)))
             )
         }

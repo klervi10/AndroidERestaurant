@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.Modifier
@@ -30,6 +31,10 @@ import com.android.volley.toolbox.Volley
 import org.json.JSONObject
 import com.google.gson.Gson
 import android.widget.Toast
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import java.net.URL
 
 import fr.isen.muros.androiderestaurant.model.Items
@@ -56,7 +61,16 @@ class CategoryActivity : ComponentActivity() {
                 val result: DataResult = Gson().fromJson(response.toString(), DataResult::class.java)
                 val dishesFromCategory = result.data.flatMap { it.items }.filter { it.categNameFr == selectedCategory }
                 setContent {
-                    CategoryTitle(selectedCategory ?: "Catégorie inconnue", dishesFromCategory)
+                    AndroidERestaurantTheme {
+                        Surface(
+                            color = Color(android.graphics.Color.parseColor(backgroundColor))
+                        ) {
+                            Column {
+                                ToolBarCat(modifier = Modifier.fillMaxWidth()) // Appel de la fonction ToolBarCat
+                                CategoryTitle(selectedCategory ?: "Catégorie inconnue", dishesFromCategory)
+                            }
+                        }
+                    }
                 }
             },
             { error ->
@@ -64,6 +78,25 @@ class CategoryActivity : ComponentActivity() {
             }
         )
         queue.add(jsonObjectRequest)
+    }
+}
+
+@Composable
+fun ToolBarCat(modifier: Modifier= Modifier) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "DroidRestaurant",
+            color = Color.White,
+            style = TextStyle(fontWeight = FontWeight.Bold),
+            modifier = Modifier
+                .background(Color(0xFFFFA500))
+                .fillMaxWidth()
+                .padding(vertical = 16.dp, horizontal = 16.dp)
+
+        )
     }
 }
 
@@ -84,8 +117,8 @@ fun CategoryTitle(selectedCategory: String, dishes: List<Items>, modifier: Modif
 
         items(dishes.size) { index ->
             val item = dishes[index]
-            val imageName = item.nameFr?.let { it.replace("\\s".toRegex(), "_").lowercase() } ?: "default_image"
 
+            val imageName = item.nameFr?.let { it.replace("\\s".toRegex(), "_").lowercase() } ?: "default_image"
             val imageUrl = item.images.lastOrNull()
             val painter = if (imageUrl != null && imageUrl.isNotEmpty()) {
                 rememberImagePainter(imageUrl)
@@ -99,6 +132,7 @@ fun CategoryTitle(selectedCategory: String, dishes: List<Items>, modifier: Modif
                     val intent = Intent(context, DetailActivity::class.java)
                     intent.putExtra("selected_dish", item.nameFr)
                     intent.putExtra("background_color", "#FFFFFF")
+                    intent.putExtra("images", item.images.toTypedArray())
                     context.startActivity(intent)
                 }
             ) {
@@ -120,6 +154,7 @@ fun CategoryTitle(selectedCategory: String, dishes: List<Items>, modifier: Modif
         }
     }
 }
+
 
 
 @Preview(showBackground = true)
