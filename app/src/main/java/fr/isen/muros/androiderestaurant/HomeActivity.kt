@@ -40,6 +40,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.painterResource
+
 import fr.isen.muros.androiderestaurant.ui.theme.AndroidERestaurantTheme
 
 class HomeActivity : ComponentActivity() {
@@ -122,7 +123,7 @@ fun Accueil(modifier: Modifier = Modifier) {
                 text = "DroidRestaurant",
                 color = Color(0xCD310010),
                 textAlign = TextAlign.End,
-                modifier = Modifier.padding(start = 10.dp),
+                modifier = Modifier.padding(start = 15.dp),
                 style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 30.sp, fontFamily = FontFamily(Font(R.font.ojuju)))
             )
         }

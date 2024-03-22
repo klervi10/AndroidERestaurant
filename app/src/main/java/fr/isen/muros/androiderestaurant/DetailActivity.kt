@@ -5,6 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,6 +17,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -44,11 +47,39 @@ class DetailActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = Color(android.graphics.Color.parseColor(backgroundColor))
                 ) {
-                    // Afficher les détails du plat
-                    Dish(selectedDish ?: "Plat inconnu", images ?: emptyArray())
+                    DetailPage(selectedDish ?: "Plat inconnu", images ?: emptyArray())
                 }
             }
         }
+    }
+}
+
+
+@Composable
+fun DetailPage(selectedDish: String?, images: Array<String>?) {
+    Column {
+        ToolBarDet(modifier = Modifier.fillMaxWidth())
+
+        Dish(selectedDish, images)
+    }
+}
+
+@Composable
+fun ToolBarDet(modifier: Modifier= Modifier) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "DroidRestaurant",
+            color = Color.White,
+            style = TextStyle(fontWeight = FontWeight.Bold),
+            modifier = Modifier
+                .background(Color(0xFFFFA500))
+                .fillMaxWidth()
+                .padding(vertical = 16.dp, horizontal = 16.dp)
+
+        )
     }
 }
 
@@ -83,6 +114,12 @@ fun Dish(selectedDish: String?, images: Array<String>?, modifier: Modifier = Mod
             )
         }
     }
+    Text(
+        text = selectedDish ?: "Plat inconnu",
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+        style = TextStyle(fontWeight = FontWeight.Bold),
+        fontSize = 20.sp
+    )
 }
 
 @Preview(showBackground = true)
