@@ -53,3 +53,5 @@ fun DishPreview() {
         Dish("Android")
     }
 }
+
+//horizontal padger (swiper les images de gauche à droite)
