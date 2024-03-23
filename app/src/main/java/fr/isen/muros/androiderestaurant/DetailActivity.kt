@@ -6,12 +6,15 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -72,44 +75,67 @@ fun DetailPage(selectedDish: String?, images: Array<String>?, price: String?, mo
         ToolBarDet(modifier = Modifier.fillMaxWidth())
         Dish(selectedDish, images) // Appel de la fonction Dish avec les paramètres appropriés
 
-        // Afficher le bouton moins, la quantité et le bouton plus
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth().padding(8.dp)
         ) {
-            Button(
+            RoundButton(
                 onClick = { if (quantityState.value > 0) quantityState.value-- },
                 modifier = Modifier
                     .size(40.dp)
-                    .background(Color(0xFFFFA500)), // Couleur de fond du bouton
             ) {
-                Text(text = "-", color = Color.White)
+                Text(
+                    text = "-",
+                    color = Color.White,
+                    fontSize = 24.sp, // Augmenter la taille du texte
+                    fontWeight = FontWeight.Bold // Mettre le texte en gras
+                )
             }
+
             Text(
                 text = quantityState.value.toString(),
                 modifier = Modifier.padding(horizontal = 16.dp),
                 style = TextStyle(fontSize = 18.sp)
             )
-            Button(
+            RoundButton(
                 onClick = { quantityState.value++ },
                 modifier = Modifier
                     .size(40.dp)
-                    .background(Color(0xFFFFA500)), // Couleur de fond du bouton
             ) {
-                Text(text = "+", color = Color.White)
+                Text(
+                    text = "+",
+                    color = Color.White,
+                    fontSize = 24.sp, // Augmenter la taille du texte
+                    fontWeight = FontWeight.Bold // Mettre le texte en gras
+                )
             }
         }
 
-        // Afficher le bouton Total en bas de la page
-        Button(
-            onClick = { /* Action à effectuer lors du clic sur le bouton Total */ },
+        Spacer(modifier = Modifier.weight(1f))
+
+        RoundButton(
+            onClick = {},
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
-                .background(Color(0xFFFFA500)), // Couleur de fond du bouton
+                .height(40.dp)
         ) {
             Text(text = "Total $totalPrice €", color = Color.White)
+        }
+    }
+}
+@Composable
+fun RoundButton(onClick: () -> Unit, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier,
+        shape = CircleShape,
+        color = Color(0xFFFFA500),
+        contentColor = Color.White
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            content()
         }
     }
 }
