@@ -1,10 +1,14 @@
 package fr.isen.muros.androiderestaurant
 
 import android.os.Bundle
+import android.content.SharedPreferences
+import android.content.Context
+import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Column
@@ -19,14 +23,20 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.Surface
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,6 +51,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.rememberPagerState
 import coil.compose.rememberImagePainter
 import fr.isen.muros.androiderestaurant.ui.theme.AndroidERestaurantTheme
+
+object PreferenceManager {
+    private const val PREF_FILE_NAME = "AppPreferences"
+    private const val CART_ITEM_COUNT_KEY = "cart_item_count"
+
+    fun saveCartItemCount(context: Context, count: Int) {
+        val sharedPreferences: SharedPreferences = context.getSharedPreferences(PREF_FILE_NAME, Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putInt(CART_ITEM_COUNT_KEY, count)
+        editor.apply()
+    }
+
+    fun getCartItemCount(context: Context): Int {
+        val sharedPreferences: SharedPreferences = context.getSharedPreferences(PREF_FILE_NAME, Context.MODE_PRIVATE)
+        return sharedPreferences.getInt(CART_ITEM_COUNT_KEY, 0)
+    }
+}
 
 class DetailActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,30 +86,63 @@ class DetailActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = Color(android.graphics.Color.parseColor(backgroundColor))
                 ) {
-                    DetailPage(selectedDish ?: "Plat inconnu", images ?: emptyArray(), selectedPrice, ingredients ?: emptyList())
+                    val cartItemCount = PreferenceManager.getCartItemCount(this)
+                    DetailPage(
+                        context = this, // Passer le contexte actuel
+                        selectedDish ?: "Plat inconnu",
+                        images ?: emptyArray(),
+                        selectedPrice,
+                        ingredients ?: emptyList(),
+                        cartItemCount = cartItemCount
+                    )
                 }
             }
         }
     }
 }
 
-
 @Composable
-fun DetailPage(selectedDish: String?, images: Array<String>?, price: String?, ingredients: List<String>?, modifier: Modifier = Modifier) {
-    val quantityState = remember { mutableStateOf(1) } // État pour stocker la quantité choisie
+fun DetailPage(
+    context: Context,
+    selectedDish: String?,
+    images: Array<String>?,
+    price: String?,
+    ingredients: List<String>?,
+    cartItemCount: Int,
+    modifier: Modifier = Modifier
+) {
+    val quantityState = remember { mutableStateOf(1) } //quantité initiale
     val totalPrice = price?.toFloatOrNull()?.times(quantityState.value) ?: 0.0f // Calcul du prix total
+    var showDialog by remember { mutableStateOf(false) }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text("Commande ajoutée") },
+            text = { Text("Votre commande a été ajoutée au panier") },
+            confirmButton = {
+                Button(
+                    onClick = { showDialog = false }
+                ) {
+                    Text("OK")
+                }
+            }
+        )
+    }
 
     Column(modifier = modifier.fillMaxWidth()) {
-        ToolBarDet(modifier = Modifier.fillMaxWidth())
-        Dish(selectedDish, images) // Appel de la fonction Dish avec les paramètres appropriés
-
+        ToolBarDet(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = {val intent = Intent(context, CartActivity::class.java)
+                context.startActivity(intent) }
+        )
+        Dish(selectedDish, images)
 
         Text(
             text = ingredients?.joinToString(", ") ?: "",
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             fontSize = 16.sp
         )
-
 
         Row(
             horizontalArrangement = Arrangement.Center,
@@ -91,14 +151,13 @@ fun DetailPage(selectedDish: String?, images: Array<String>?, price: String?, in
         ) {
             RoundButton(
                 onClick = { if (quantityState.value > 0) quantityState.value-- },
-                modifier = Modifier
-                    .size(40.dp)
+                modifier = Modifier.size(40.dp)
             ) {
                 Text(
                     text = "-",
                     color = Color.White,
-                    fontSize = 24.sp, // Augmenter la taille du texte
-                    fontWeight = FontWeight.Bold // Mettre le texte en gras
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
                 )
             }
 
@@ -109,14 +168,13 @@ fun DetailPage(selectedDish: String?, images: Array<String>?, price: String?, in
             )
             RoundButton(
                 onClick = { quantityState.value++ },
-                modifier = Modifier
-                    .size(40.dp)
+                modifier = Modifier.size(40.dp)
             ) {
                 Text(
                     text = "+",
                     color = Color.White,
-                    fontSize = 24.sp, // Augmenter la taille du texte
-                    fontWeight = FontWeight.Bold // Mettre le texte en gras
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
                 )
             }
         }
@@ -124,7 +182,11 @@ fun DetailPage(selectedDish: String?, images: Array<String>?, price: String?, in
         Spacer(modifier = Modifier.weight(1f))
 
         RoundButton(
-            onClick = {},
+            onClick = {
+                val newCartItemCount = cartItemCount + quantityState.value
+                PreferenceManager.saveCartItemCount(context, newCartItemCount)
+                showDialog = true
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
@@ -134,6 +196,7 @@ fun DetailPage(selectedDish: String?, images: Array<String>?, price: String?, in
         }
     }
 }
+
 @Composable
 fun RoundButton(onClick: () -> Unit, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Surface(
@@ -148,31 +211,12 @@ fun RoundButton(onClick: () -> Unit, modifier: Modifier = Modifier, content: @Co
         }
     }
 }
-
-@Composable
-fun ToolBarDet(modifier: Modifier= Modifier) {
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "DroidRestaurant",
-            color = Color.White,
-            style = TextStyle(fontWeight = FontWeight.Bold),
-            modifier = Modifier
-                .background(Color(0xFFFFA500))
-                .fillMaxWidth()
-                .padding(vertical = 16.dp, horizontal = 16.dp)
-
-        )
-    }
-}
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Dish(selectedDish: String?, images: Array<String>?, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val pagerState = rememberPagerState(pageCount = { images?.size ?: 0 })
+
     if (!images.isNullOrEmpty()) {
         HorizontalPager(modifier = modifier.fillMaxWidth(), state = pagerState) { page ->
             val imageUrl = images[page]
@@ -180,9 +224,9 @@ fun Dish(selectedDish: String?, images: Array<String>?, modifier: Modifier = Mod
                 painter = rememberImagePainter(imageUrl),
                 contentDescription = null,
                 modifier = Modifier
-                    .height(300.dp) // Hauteur de l'image
-                    .fillMaxWidth() // Largeur de l'image
-                    .padding(8.dp), // Espacement entre les images
+                    .height(300.dp)
+                    .fillMaxWidth()
+                    .padding(8.dp),
                 contentScale = ContentScale.Crop
             )
         }
@@ -199,12 +243,47 @@ fun Dish(selectedDish: String?, images: Array<String>?, modifier: Modifier = Mod
             )
         }
     }
+
     Text(
         text = selectedDish ?: "Plat inconnu",
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
         style = TextStyle(fontWeight = FontWeight.Bold),
         fontSize = 20.sp
     )
+}
+
+
+@Composable
+fun ToolBarDet(modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .background(Color(0xFFFFA500)) // Couleur orange
+                .fillMaxWidth()
+                .padding(vertical = 16.dp, horizontal = 16.dp)
+        ) {
+            Text(
+                text = "DroidRestaurant",
+                color = Color.White,
+                style = TextStyle(fontWeight = FontWeight.Bold),
+                modifier = Modifier.weight(1f)
+            )
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.clickable { onClick() } // Appel de la fonction onClick
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.cart_image),
+                    contentDescription = stringResource(id = R.string.cart),
+                    modifier = Modifier.size(26.dp)
+                )
+            }
+        }
+    }
 }
 
 @Preview(showBackground = true)

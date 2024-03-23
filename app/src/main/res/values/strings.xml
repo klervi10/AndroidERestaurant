@@ -16,4 +16,6 @@
         <item>Dessert 2</item>
     </string-array>
     <string name="title_activity_detail">DetailActivity</string>
+    <string name="title_activity_cart">CartActivity</string>
+    <string name="cart">Panier</string>
 </resources>
