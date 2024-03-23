@@ -134,6 +134,7 @@ fun CategoryTitle(selectedCategory: String, dishes: List<Items>, modifier: Modif
                     intent.putExtra("background_color", "#FFFFFF")
                     intent.putExtra("images", item.images.toTypedArray())
                     intent.putExtra("selected_price", selectedPrice)
+                    intent.putStringArrayListExtra("ingredients", ArrayList(item.ingredients.map { it.nameFr }))
                     context.startActivity(intent)
                 }
             ) {

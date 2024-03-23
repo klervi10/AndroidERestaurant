@@ -51,6 +51,7 @@ class DetailActivity : ComponentActivity() {
         val backgroundColor = intent.getStringExtra("background_color") ?: "#FFFFFF"
         val images = intent.getStringArrayExtra("images")
         val selectedPrice = intent.getStringExtra("selected_price")
+        val ingredients = intent.getStringArrayListExtra("ingredients")
 
         setContent {
             AndroidERestaurantTheme {
@@ -58,7 +59,7 @@ class DetailActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = Color(android.graphics.Color.parseColor(backgroundColor))
                 ) {
-                    DetailPage(selectedDish ?: "Plat inconnu", images ?: emptyArray(), selectedPrice)
+                    DetailPage(selectedDish ?: "Plat inconnu", images ?: emptyArray(), selectedPrice, ingredients ?: emptyList())
                 }
             }
         }
@@ -67,13 +68,21 @@ class DetailActivity : ComponentActivity() {
 
 
 @Composable
-fun DetailPage(selectedDish: String?, images: Array<String>?, price: String?, modifier: Modifier = Modifier) {
+fun DetailPage(selectedDish: String?, images: Array<String>?, price: String?, ingredients: List<String>?, modifier: Modifier = Modifier) {
     val quantityState = remember { mutableStateOf(1) } // État pour stocker la quantité choisie
     val totalPrice = price?.toFloatOrNull()?.times(quantityState.value) ?: 0.0f // Calcul du prix total
 
     Column(modifier = modifier.fillMaxWidth()) {
         ToolBarDet(modifier = Modifier.fillMaxWidth())
         Dish(selectedDish, images) // Appel de la fonction Dish avec les paramètres appropriés
+
+
+        Text(
+            text = ingredients?.joinToString(", ") ?: "",
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            fontSize = 16.sp
+        )
+
 
         Row(
             horizontalArrangement = Arrangement.Center,
