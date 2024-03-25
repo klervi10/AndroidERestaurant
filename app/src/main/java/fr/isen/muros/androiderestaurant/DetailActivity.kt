@@ -20,33 +20,26 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.Surface
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.runtime.*
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.runtime.*
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.rememberPagerState
 import coil.compose.rememberImagePainter
@@ -231,8 +224,7 @@ fun Dish(selectedDish: String?, images: Array<String>?, modifier: Modifier = Mod
             )
         }
     } else {
-        // Si aucune image n'est disponible, afficher une image par défaut
-        val imageName = selectedDish?.replace("\\s".toRegex(), "_")?.lowercase() ?: "default_image"
+        val imageName = selectedDish?.replace("\\s".toRegex(), "")?.lowercase() ?: "default_image"
         val drawableId = context.resources.getIdentifier(imageName, "drawable", context.packageName)
         if (drawableId != 0) {
             Image(
@@ -277,9 +269,9 @@ fun ToolBarDet(modifier: Modifier = Modifier, onClick: () -> Unit) {
                 modifier = Modifier.clickable { onClick() } // Appel de la fonction onClick
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.cart_image),
+                    painter = painterResource(id = R.drawable.cartimage),
                     contentDescription = stringResource(id = R.string.cart),
-                    modifier = Modifier.size(26.dp)
+                    modifier = Modifier.size(24.dp)
                 )
             }
         }
