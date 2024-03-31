@@ -118,9 +118,9 @@ fun CategoryTitle(selectedCategory: String, dishes: List<Items>, modifier: Modif
         items(dishes.size) { index ->
             val item = dishes[index]
             val selectedPrice = item.prices.firstOrNull()?.price
-            val imageName = item.nameFr?.let { it.replace("\\s".toRegex(), "_").lowercase() } ?: "default_image"
+            val imageName = item.nameFr?.let { it.replace("\\s".toRegex(), "").lowercase() } ?: "default_image"
             val imageUrl = item.images.lastOrNull()
-            val painter = if (imageUrl != null && imageUrl.isNotEmpty()) {
+            val painter = if (!imageUrl.isNullOrEmpty()) {
                 rememberImagePainter(imageUrl)
             } else {
                 painterResource(id = context.resources.getIdentifier(imageName, "drawable", context.packageName))
@@ -157,12 +157,3 @@ fun CategoryTitle(selectedCategory: String, dishes: List<Items>, modifier: Modif
     }
 }
 
-
-
-@Preview(showBackground = true)
-@Composable
-fun CategoryTitlePreview() {
-    AndroidERestaurantTheme {
-        CategoryTitle("test", emptyList())
-    }
-}

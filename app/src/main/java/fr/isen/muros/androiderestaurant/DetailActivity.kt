@@ -1,6 +1,7 @@
 package fr.isen.muros.androiderestaurant
 
 import android.os.Bundle
+import android.util.Log
 import android.content.SharedPreferences
 import android.content.Context
 import android.content.Intent
@@ -27,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -45,24 +47,9 @@ import androidx.compose.foundation.pager.rememberPagerState
 import coil.compose.rememberImagePainter
 import fr.isen.muros.androiderestaurant.ui.theme.AndroidERestaurantTheme
 
-object PreferenceManager {
-    private const val PREF_FILE_NAME = "AppPreferences"
-    private const val CART_ITEM_COUNT_KEY = "cart_item_count"
-
-    fun saveCartItemCount(context: Context, count: Int) {
-        val sharedPreferences: SharedPreferences = context.getSharedPreferences(PREF_FILE_NAME, Context.MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        editor.putInt(CART_ITEM_COUNT_KEY, count)
-        editor.apply()
-    }
-
-    fun getCartItemCount(context: Context): Int {
-        val sharedPreferences: SharedPreferences = context.getSharedPreferences(PREF_FILE_NAME, Context.MODE_PRIVATE)
-        return sharedPreferences.getInt(CART_ITEM_COUNT_KEY, 0)
-    }
-}
-
 class DetailActivity : ComponentActivity() {
+    internal var itemsInCart = 0
+    internal var showCartBadge by mutableStateOf(false)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -79,18 +66,25 @@ class DetailActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = Color(android.graphics.Color.parseColor(backgroundColor))
                 ) {
-                    val cartItemCount = PreferenceManager.getCartItemCount(this)
+
                     DetailPage(
-                        context = this, // Passer le contexte actuel
+                        context = this,
                         selectedDish ?: "Plat inconnu",
                         images ?: emptyArray(),
                         selectedPrice,
                         ingredients ?: emptyList(),
-                        cartItemCount = cartItemCount
                     )
                 }
             }
         }
+        fun updateCartItemCount(count: Int){
+            itemsInCart = count
+            showCartBadge = count > 0
+        }
+    }
+
+    fun updateCartItemCount(count: Int){
+        itemsInCart += count
     }
 }
 
@@ -101,12 +95,12 @@ fun DetailPage(
     images: Array<String>?,
     price: String?,
     ingredients: List<String>?,
-    cartItemCount: Int,
     modifier: Modifier = Modifier
 ) {
     val quantityState = remember { mutableStateOf(1) } //quantité initiale
     val totalPrice = price?.toFloatOrNull()?.times(quantityState.value) ?: 0.0f // Calcul du prix total
     var showDialog by remember { mutableStateOf(false) }
+    var itemsInCart = 0
 
     if (showDialog) {
         AlertDialog(
@@ -126,9 +120,10 @@ fun DetailPage(
     Column(modifier = modifier.fillMaxWidth()) {
         ToolBarDet(
             modifier = Modifier.fillMaxWidth(),
-            onClick = {val intent = Intent(context, CartActivity::class.java)
-                context.startActivity(intent) }
+            quantity = quantityState.value,
+            showCartBadge = (context as DetailActivity).showCartBadge
         )
+
         Dish(selectedDish, images)
 
         Text(
@@ -176,9 +171,16 @@ fun DetailPage(
 
         RoundButton(
             onClick = {
-                val newCartItemCount = cartItemCount + quantityState.value
-                PreferenceManager.saveCartItemCount(context, newCartItemCount)
+                val sharedPreferences = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+                val editor = sharedPreferences.edit()
+                editor.putString("selected_dish", selectedDish)
+                editor.putInt("quantity", quantityState.value)
+                editor.putFloat("total_price", totalPrice)
+                editor.apply()
+
                 showDialog = true
+                Log.d("OrderDetails", "Selected Dish: ${selectedDish ?: ""}, Quantity: ${quantityState.value}, Total Price: $totalPrice")
+                (context as DetailActivity).updateCartItemCount(quantityState.value)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -204,6 +206,7 @@ fun RoundButton(onClick: () -> Unit, modifier: Modifier = Modifier, content: @Co
         }
     }
 }
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Dish(selectedDish: String?, images: Array<String>?, modifier: Modifier = Modifier) {
@@ -244,9 +247,14 @@ fun Dish(selectedDish: String?, images: Array<String>?, modifier: Modifier = Mod
     )
 }
 
-
 @Composable
-fun ToolBarDet(modifier: Modifier = Modifier, onClick: () -> Unit) {
+fun ToolBarDet(
+    modifier: Modifier = Modifier,
+    quantity: Int,
+    showCartBadge: Boolean
+) {
+    val context = LocalContext.current
+
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -254,7 +262,7 @@ fun ToolBarDet(modifier: Modifier = Modifier, onClick: () -> Unit) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .background(Color(0xFFFFA500)) // Couleur orange
+                .background(Color(0xFFFFA500))
                 .fillMaxWidth()
                 .padding(vertical = 16.dp, horizontal = 16.dp)
         ) {
@@ -266,22 +274,34 @@ fun ToolBarDet(modifier: Modifier = Modifier, onClick: () -> Unit) {
             )
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.clickable { onClick() } // Appel de la fonction onClick
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable {
+                        val intent = Intent(context, CartActivity::class.java)
+                        context.startActivity(intent)
+                    }
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.cartimage),
                     contentDescription = stringResource(id = R.string.cart),
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.fillMaxSize()
                 )
+                if (showCartBadge && quantity > 0) {
+                    Box(
+                        modifier = Modifier
+                            .size(20.dp)
+                            .align(Alignment.TopEnd)
+                            .background(Color.Red, CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = quantity.toString(),
+                            color = Color.White,
+                            style = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        )
+                    }
+                }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DishPreview() {
-    AndroidERestaurantTheme {
-        Dish("test", arrayOf("url_image_1", "url_image_2"))
     }
 }
