@@ -2,7 +2,6 @@ package fr.isen.muros.androiderestaurant
 
 import android.os.Bundle
 import android.util.Log
-import android.content.SharedPreferences
 import android.content.Context
 import android.content.Intent
 import androidx.activity.ComponentActivity
@@ -28,7 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -36,7 +34,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.runtime.*
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -77,10 +74,6 @@ class DetailActivity : ComponentActivity() {
                 }
             }
         }
-        fun updateCartItemCount(count: Int){
-            itemsInCart = count
-            showCartBadge = count > 0
-        }
     }
 
     fun updateCartItemCount(count: Int){
@@ -100,7 +93,6 @@ fun DetailPage(
     val quantityState = remember { mutableStateOf(1) } //quantité initiale
     val totalPrice = price?.toFloatOrNull()?.times(quantityState.value) ?: 0.0f // Calcul du prix total
     var showDialog by remember { mutableStateOf(false) }
-    var itemsInCart = 0
 
     if (showDialog) {
         AlertDialog(
@@ -180,7 +172,7 @@ fun DetailPage(
 
                 showDialog = true
                 Log.d("OrderDetails", "Selected Dish: ${selectedDish ?: ""}, Quantity: ${quantityState.value}, Total Price: $totalPrice")
-                (context as DetailActivity).updateCartItemCount(quantityState.value)
+                context.updateCartItemCount(quantityState.value)
             },
             modifier = Modifier
                 .fillMaxWidth()

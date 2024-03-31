@@ -141,7 +141,7 @@ fun Accueil(modifier: Modifier = Modifier) {
 @Composable
 fun ButtonToast(modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    var selectedCategory: String = ""
+    var selectedCategory: String
 
     Column(
         modifier = modifier
@@ -211,15 +211,3 @@ fun ToolBarPreview(){
     }
 }
 
-@Composable
-fun AccueilPreview(){
-    AndroidERestaurantTheme {
-        Accueil()
-    }
-}
-@Composable
-fun ButtonToastPreview() {
-    AndroidERestaurantTheme {
-        ButtonToast()
-    }
-}

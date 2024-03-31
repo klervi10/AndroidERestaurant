@@ -25,7 +25,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import fr.isen.muros.androiderestaurant.ui.theme.AndroidERestaurantTheme
 
 class CartActivity : ComponentActivity() {

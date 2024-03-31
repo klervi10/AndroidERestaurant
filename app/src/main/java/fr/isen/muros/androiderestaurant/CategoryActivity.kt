@@ -1,5 +1,6 @@
 package fr.isen.muros.androiderestaurant
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.content.Intent
 import androidx.activity.ComponentActivity
@@ -18,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.platform.LocalContext
@@ -35,7 +35,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import java.net.URL
 
 import fr.isen.muros.androiderestaurant.model.Items
 import fr.isen.muros.androiderestaurant.model.DataResult
@@ -100,6 +99,7 @@ fun ToolBarCat(modifier: Modifier= Modifier) {
     }
 }
 
+@SuppressLint("DiscouragedApi")
 @Composable
 fun CategoryTitle(selectedCategory: String, dishes: List<Items>, modifier: Modifier = Modifier) {
     val context = LocalContext.current
@@ -118,7 +118,7 @@ fun CategoryTitle(selectedCategory: String, dishes: List<Items>, modifier: Modif
         items(dishes.size) { index ->
             val item = dishes[index]
             val selectedPrice = item.prices.firstOrNull()?.price
-            val imageName = item.nameFr?.let { it.replace("\\s".toRegex(), "").lowercase() } ?: "default_image"
+            val imageName = item.nameFr?.replace("\\s".toRegex(), "")?.lowercase() ?: "default_image"
             val imageUrl = item.images.lastOrNull()
             val painter = if (!imageUrl.isNullOrEmpty()) {
                 rememberImagePainter(imageUrl)
